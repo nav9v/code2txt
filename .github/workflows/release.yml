@@ -39,17 +39,19 @@ jobs:
     
     - name: Build binaries
       run: |
+        mkdir -p builds
+        
         # Windows AMD64
-        GOOS=windows GOARCH=amd64 go build -ldflags="-s -w" -o dist/code2txt-windows-amd64.exe
+        GOOS=windows GOARCH=amd64 go build -ldflags="-s -w" -o builds/code2txt-windows-amd64.exe
         
         # Linux AMD64
-        GOOS=linux GOARCH=amd64 go build -ldflags="-s -w" -o dist/code2txt-linux-amd64
+        GOOS=linux GOARCH=amd64 go build -ldflags="-s -w" -o builds/code2txt-linux-amd64
         
         # macOS Intel
-        GOOS=darwin GOARCH=amd64 go build -ldflags="-s -w" -o dist/code2txt-macos-intel
+        GOOS=darwin GOARCH=amd64 go build -ldflags="-s -w" -o builds/code2txt-macos-intel
         
         # macOS Apple Silicon
-        GOOS=darwin GOARCH=arm64 go build -ldflags="-s -w" -o dist/code2txt-macos-arm64
+        GOOS=darwin GOARCH=arm64 go build -ldflags="-s -w" -o builds/code2txt-macos-arm64
     
     - name: Create Release
       id: create_release
@@ -60,20 +62,38 @@ jobs:
         tag_name: ${{ github.ref }}
         release_name: Release ${{ github.ref }}
         body: |
-          ## Changes
-          - See commit history for detailed changes
+          ## 🚀 code2txt - AI Ready Code Converter
           
-          ## Downloads
-          Choose the appropriate binary for your platform:
-          - **Windows**: code2txt-windows-amd64.exe
-          - **Linux**: code2txt-linux-amd64
-          - **macOS Intel**: code2txt-macos-intel  
-          - **macOS Apple Silicon**: code2txt-macos-arm64
+          A fast CLI tool that converts code repositories into AI-friendly text format.
+          Perfect for feeding codebases to ChatGPT, Claude, or other AI models.
           
-          ## Installation
-          1. Download the binary for your platform
-          2. Make it executable (Linux/macOS): `chmod +x code2txt-*`
+          ### ✨ Features
+          - **Fast scanning**: Process 1000+ files quickly
+          - **Token counting**: Accurate GPT-4/Claude token estimation  
+          - **Tree visualization**: Beautiful directory structure display
+          - **Smart filtering**: Respects .gitignore automatically
+          - **Cross-platform**: Works on Windows, Mac, and Linux
+          - **Flexible patterns**: Include/exclude file patterns
+          
+          ### 📥 Installation
+          1. Download the binary for your platform below
+          2. Make executable (Linux/macOS): `chmod +x code2txt-*`
           3. Move to PATH or run directly
+          
+          ### 🖥️ Platform Downloads
+          - **Windows 64-bit**: `code2txt-windows-amd64.exe`
+          - **Linux 64-bit**: `code2txt-linux-amd64`
+          - **macOS Intel**: `code2txt-macos-intel`
+          - **macOS Apple Silicon**: `code2txt-macos-arm64`
+          
+          ### 🔧 Quick Start
+          ```bash
+          # Scan project and show token counts
+          code2txt ./my-project --tokens
+          
+          # Export to file with specific patterns
+          code2txt ./src -i "*.go,*.js" -o analysis.txt
+          ```
         draft: false
         prerelease: false
     
@@ -83,7 +103,7 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./dist/code2txt-windows-amd64.exe
+        asset_path: ./builds/code2txt-windows-amd64.exe
         asset_name: code2txt-windows-amd64.exe
         asset_content_type: application/octet-stream
     
@@ -93,7 +113,7 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./dist/code2txt-linux-amd64
+        asset_path: ./builds/code2txt-linux-amd64
         asset_name: code2txt-linux-amd64
         asset_content_type: application/octet-stream
     
@@ -103,7 +123,7 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./dist/code2txt-macos-intel
+        asset_path: ./builds/code2txt-macos-intel
         asset_name: code2txt-macos-intel
         asset_content_type: application/octet-stream
     
@@ -113,6 +133,6 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./dist/code2txt-macos-arm64
+        asset_path: ./builds/code2txt-macos-arm64
         asset_name: code2txt-macos-arm64
         asset_content_type: application/octet-stream
