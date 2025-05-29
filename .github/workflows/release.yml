@@ -57,15 +57,17 @@ jobs:
     - name: Get version from tag
       id: version
       run: |
-        echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
-        echo "TAG_NAME=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+        VERSION=${GITHUB_REF#refs/tags/}
+        echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
+        echo "TAG_NAME=$VERSION" >> $GITHUB_OUTPUT
+        echo "Building version: $VERSION"
     
     - name: Build binaries
       run: |
         mkdir -p dist
         
         # Build for multiple platforms
-        platforms=("windows/amd64" "linux/amd64" "darwin/amd64" "darwin/arm64")
+        declare -a platforms=("windows/amd64" "linux/amd64" "darwin/amd64" "darwin/arm64" "linux/arm64")
         
         for platform in "${platforms[@]}"
         do
@@ -73,33 +75,54 @@ jobs:
           GOOS=${platform_split[0]}
           GOARCH=${platform_split[1]}
           
-          output_name="code2txt-${GOOS}-${GOARCH}"
+          output_name="code2txt-$GOOS-$GOARCH"
           if [ $GOOS = "windows" ]; then
             output_name+='.exe'
           fi
           
           echo "Building for $GOOS/$GOARCH..."
-          env GOOS=$GOOS GOARCH=$GOARCH go build \
+          env GOOS=$GOOS GOARCH=$GOARCH CGO_ENABLED=0 go build \
             -ldflags="-s -w -X main.version=${{ steps.version.outputs.VERSION }}" \
-            -o dist/$output_name
+            -o dist/$output_name \
+            .
+          
+          if [ $? -ne 0 ]; then
+            echo "Build failed for $GOOS/$GOARCH"
+            exit 1
+          fi
         done
         
-        # List built files
-        ls -la dist/
+        # List built files with sizes
+        echo "Built files:"
+        ls -lah dist/
+        
+        # Verify files exist
+        file_count=$(ls dist/ | wc -l)
+        echo "Total files built: $file_count"
+        if [ $file_count -eq 0 ]; then
+          echo "No files were built!"
+          exit 1
+        fi
     
     - name: Generate checksums
       run: |
         cd dist
         sha256sum * > checksums.txt
+        echo "Checksums generated:"
         cat checksums.txt
     
-    - name: Create Release and Upload Assets
+    - name: Create Release
       uses: softprops/action-gh-release@v2
       with:
         tag_name: ${{ steps.version.outputs.TAG_NAME }}
         name: Release ${{ steps.version.outputs.TAG_NAME }}
         files: |
-          dist/*
+          dist/code2txt-windows-amd64.exe
+          dist/code2txt-linux-amd64
+          dist/code2txt-darwin-amd64
+          dist/code2txt-darwin-arm64
+          dist/code2txt-linux-arm64
+          dist/checksums.txt
         body: |
           ## 🚀 code2txt ${{ steps.version.outputs.TAG_NAME }} - AI Ready Code Converter
           
@@ -122,6 +145,7 @@ jobs:
           ### 🖥️ Platform Downloads
           - **Windows 64-bit**: `code2txt-windows-amd64.exe`
           - **Linux 64-bit**: `code2txt-linux-amd64`
+          - **Linux ARM64**: `code2txt-linux-arm64`
           - **macOS Intel**: `code2txt-darwin-amd64`
           - **macOS Apple Silicon**: `code2txt-darwin-arm64`
           
@@ -144,6 +168,6 @@ jobs:
           See [CHANGELOG.md](https://github.com/nav9v/code2txt/blob/main/CHANGELOG.md) for detailed changes.
         draft: false
         prerelease: false
-        generate_release_notes: true
+        generate_release_notes: false
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
