@@ -13,16 +13,30 @@ A fast Golang CLI tool that converts code repositories to text files for AI anal
 
 ## Installation
 
+### Option 1: Download Pre-built Binary (Recommended)
+Download the latest release for your platform:
+- [Windows 64-bit](https://github.com/nav9v/code2txt/releases/latest/download/code2txt-windows-amd64.exe)
+- [macOS Intel](https://github.com/nav9v/code2txt/releases/latest/download/code2txt-macos-intel)
+- [macOS Apple Silicon](https://github.com/nav9v/code2txt/releases/latest/download/code2txt-macos-arm64)
+- [Linux 64-bit](https://github.com/nav9v/code2txt/releases/latest/download/code2txt-linux-amd64)
+
+### Option 2: Install with Go (requires Go 1.21+)
 ```bash
-go install github.com/code2txt@latest
+go install github.com/nav9v/code2txt@latest
 ```
 
-Or build from source:
-
+### Option 3: Build from Source
 ```bash
-git clone https://github.com/nav9v/code2txt
+git clone https://github.com/nav9v/code2txt.git
 cd code2txt
 go build -o code2txt
+```
+
+### Option 4: Local Build (if you have the source)
+```bash
+# In the project directory
+go build -o code2txt
+# On Windows: go build -o code2txt.exe
 ```
 
 ## Usage

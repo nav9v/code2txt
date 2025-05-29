@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/code2txt/cmd"
+	"github.com/nav9v/code2txt/cmd"
 )
 
 func main() {

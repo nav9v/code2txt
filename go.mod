@@ -1,4 +1,4 @@
-module github.com/code2txt
+module github.com/nav9v/code2txt
 
 go 1.21
 

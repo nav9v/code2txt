@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/code2txt/internal"
+	"github.com/nav9v/code2txt/internal"
 	"github.com/spf13/cobra"
 )
 
