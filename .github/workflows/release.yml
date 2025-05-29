@@ -2,65 +2,98 @@ name: Build and Release
 
 on:
   push:
-    tags:
-      - 'v*'
+    branches: [ main ]
   pull_request:
     branches: [ main ]
+  release:
+    types: [ created ]
+
+permissions:
+  contents: write
 
 jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
+    - name: Checkout code
+      uses: actions/checkout@v4
     
     - name: Set up Go
-      uses: actions/setup-go@v4
+      uses: actions/setup-go@v5
       with:
         go-version: '1.21'
+        cache: true
     
     - name: Run tests
       run: go test -v ./...
     
     - name: Run go vet
       run: go vet ./...
+    
+    - name: Run go fmt check
+      run: |
+        if [ "$(go fmt ./... | wc -l)" -gt 0 ]; then
+          echo "Code is not formatted. Please run 'go fmt ./...'"
+          exit 1
+        fi
 
-  build:
+  build-and-release:
     needs: test
     runs-on: ubuntu-latest
-    if: startsWith(github.ref, 'refs/tags/')
+    if: github.event_name == 'release'
     
     steps:
-    - uses: actions/checkout@v4
+    - name: Checkout code
+      uses: actions/checkout@v4
     
     - name: Set up Go
-      uses: actions/setup-go@v4
+      uses: actions/setup-go@v5
       with:
         go-version: '1.21'
+        cache: true
+    
+    - name: Get version from tag
+      id: version
+      run: echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
     
     - name: Build binaries
       run: |
-        mkdir -p builds
+        mkdir -p dist
         
-        # Windows AMD64
-        GOOS=windows GOARCH=amd64 go build -ldflags="-s -w" -o builds/code2txt-windows-amd64.exe
+        # Build for multiple platforms
+        platforms=("windows/amd64" "linux/amd64" "darwin/amd64" "darwin/arm64")
         
-        # Linux AMD64
-        GOOS=linux GOARCH=amd64 go build -ldflags="-s -w" -o builds/code2txt-linux-amd64
+        for platform in "${platforms[@]}"
+        do
+          platform_split=(${platform//\// })
+          GOOS=${platform_split[0]}
+          GOARCH=${platform_split[1]}
+          
+          output_name="code2txt-${GOOS}-${GOARCH}"
+          if [ $GOOS = "windows" ]; then
+            output_name+='.exe'
+          fi
+          
+          echo "Building for $GOOS/$GOARCH..."
+          env GOOS=$GOOS GOARCH=$GOARCH go build \
+            -ldflags="-s -w -X main.version=${{ steps.version.outputs.VERSION }}" \
+            -o dist/$output_name
+        done
         
-        # macOS Intel
-        GOOS=darwin GOARCH=amd64 go build -ldflags="-s -w" -o builds/code2txt-macos-intel
-        
-        # macOS Apple Silicon
-        GOOS=darwin GOARCH=arm64 go build -ldflags="-s -w" -o builds/code2txt-macos-arm64
+        # List built files
+        ls -la dist/
     
-    - name: Create Release
-      id: create_release
-      uses: actions/create-release@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - name: Generate checksums
+      run: |
+        cd dist
+        sha256sum * > checksums.txt
+        cat checksums.txt
+    
+    - name: Upload release assets
+      uses: softprops/action-gh-release@v1
       with:
-        tag_name: ${{ github.ref }}
-        release_name: Release ${{ github.ref }}
+        files: |
+          dist/*
         body: |
           ## 🚀 code2txt - AI Ready Code Converter
           
@@ -83,8 +116,8 @@ jobs:
           ### 🖥️ Platform Downloads
           - **Windows 64-bit**: `code2txt-windows-amd64.exe`
           - **Linux 64-bit**: `code2txt-linux-amd64`
-          - **macOS Intel**: `code2txt-macos-intel`
-          - **macOS Apple Silicon**: `code2txt-macos-arm64`
+          - **macOS Intel**: `code2txt-darwin-amd64`
+          - **macOS Apple Silicon**: `code2txt-darwin-arm64`
           
           ### 🔧 Quick Start
           ```bash
@@ -94,45 +127,13 @@ jobs:
           # Export to file with specific patterns
           code2txt ./src -i "*.go,*.js" -o analysis.txt
           ```
+          
+          ### 🔍 Verify Downloads
+          Use the checksums.txt file to verify your download:
+          ```bash
+          sha256sum -c checksums.txt
+          ```
         draft: false
         prerelease: false
-    
-    - name: Upload Windows Binary
-      uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./builds/code2txt-windows-amd64.exe
-        asset_name: code2txt-windows-amd64.exe
-        asset_content_type: application/octet-stream
-    
-    - name: Upload Linux Binary
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./builds/code2txt-linux-amd64
-        asset_name: code2txt-linux-amd64
-        asset_content_type: application/octet-stream
-    
-    - name: Upload macOS Intel Binary
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./builds/code2txt-macos-intel
-        asset_name: code2txt-macos-intel
-        asset_content_type: application/octet-stream
-    
-    - name: Upload macOS ARM Binary
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./builds/code2txt-macos-arm64
-        asset_name: code2txt-macos-arm64
-        asset_content_type: application/octet-stream
