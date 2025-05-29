@@ -1,15 +1,21 @@
 # code2txt 🚀
 
-[![CI](https://github.com/nav9v/code2txt/actions/workflows/ci.yml/badge.svg)](https://github.com/nav9v/code2txt/actions/workflows/ci.yml)
+A fast CLI tool that converts code repositories into AI-friendly text format. Perfect for feeding codebases to LLMs, ChatGPT, Claude, or other AI models.
+<!-- [![CI](https://github.com/nav9v/code2txt/actions/workflows/ci.yml/badge.svg)](https://github.com/nav9v/code2txt/actions/workflows/ci.yml) -->
 [![Release](https://github.com/nav9v/code2txt/actions/workflows/release.yml/badge.svg)](https://github.com/nav9v/code2txt/actions/workflows/release.yml)
 [![Go Report Card](https://goreportcard.com/badge/github.com/nav9v/code2txt)](https://goreportcard.com/report/github.com/nav9v/code2txt)
 
-A fast CLI tool that converts code repositories into AI-friendly text format. Perfect for feeding codebases to ChatGPT, Claude, or other AI models.
+
+![Screenshot 2025-05-29 232024](https://github.com/user-attachments/assets/3ce10e52-c558-4eb9-8059-733c045084a7)
+![Screenshot 2025-05-29 232041](https://github.com/user-attachments/assets/b1def82e-85df-4d14-9c2b-fa4c73f1c855)
+
+
+
 
 ## ✨ Features
 
 - **🚀 Fast scanning**: Process 1000+ files quickly
-- **🧮 Token counting**: Accurate GPT-4/Claude token estimation  
+- **🧮 Token counting**: Accurate LLMs token estimation  
 - **🌳 Tree visualization**: Beautiful directory structure display
 - **🎯 Smart filtering**: Respects .gitignore automatically
 - **🔧 Cross-platform**: Works on Windows, Mac, and Linux
@@ -104,87 +110,6 @@ code2txt ./enterprise-app --max-tokens 10000 --no-tree
 - Go 1.21 or later
 - Make (optional, for convenience)
 
-### Development Workflow
-
-```bash
-# Install dependencies
-make deps
-
-# Run tests
-make test
-
-# Format code
-make fmt
-
-# Lint code (requires golangci-lint)
-make lint
-
-# Build for current platform
-make build
-
-# Build for all platforms
-make build-all
-
-# Full development cycle
-make dev
-```
-
-### Testing
-
-```bash
-# Run all tests
-go test -v ./...
-
-# Run with coverage
-go test -race -coverprofile=coverage.out ./...
-
-# View coverage report
-go tool cover -html=coverage.out
-```
-
-## 📦 Release Process
-
-### Automated Releases (Recommended)
-
-1. **Create and push a tag**:
-   ```bash
-   git tag -a v1.0.2 -m "Release v1.0.2"
-   git push origin v1.0.2
-   ```
-
-2. **Automatic Release Creation**:
-   - GitHub Actions will automatically:
-     - Run all tests
-     - Build binaries for all platforms
-     - Create a GitHub release
-     - Upload all assets with checksums
-
-### Manual Release
-
-```bash
-# Prepare release
-make release-prep
-
-# Create tag manually if needed
-git tag -a v1.0.2 -m "Release v1.0.2"
-git push origin v1.0.2
-```
-
-## 🔄 GitHub Workflows
-
-### Continuous Integration (`ci.yml`)
-
-- **Triggers**: Push to main/develop, Pull requests
-- **Tests**: Cross-platform testing (Ubuntu, Windows, macOS)
-- **Go versions**: 1.21, 1.22
-- **Checks**: Tests, formatting, vetting, building
-
-### Release (`release.yml`)
-
-- **Triggers**: Git tags starting with `v` (e.g., `v1.0.0`)
-- **Builds**: Multi-platform binaries automatically
-- **Assets**: Automated upload with checksums
-- **Release**: Automatically creates GitHub release
 
 ## 📋 Contributing
 
