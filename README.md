@@ -146,16 +146,18 @@ go tool cover -html=coverage.out
 
 ### Automated Releases (Recommended)
 
-1. **Create a new tag**:
+1. **Create and push a tag**:
    ```bash
-   git tag -a v1.0.0 -m "Release v1.0.0"
-   git push origin v1.0.0
+   git tag -a v1.0.2 -m "Release v1.0.2"
+   git push origin v1.0.2
    ```
 
-2. **Create GitHub Release**:
-   - Go to GitHub → Releases → "Create a new release"
-   - Select your tag
-   - GitHub Actions will automatically build and upload binaries
+2. **Automatic Release Creation**:
+   - GitHub Actions will automatically:
+     - Run all tests
+     - Build binaries for all platforms
+     - Create a GitHub release
+     - Upload all assets with checksums
 
 ### Manual Release
 
@@ -163,7 +165,9 @@ go tool cover -html=coverage.out
 # Prepare release
 make release-prep
 
-# Upload dist/ files to GitHub release manually
+# Create tag manually if needed
+git tag -a v1.0.2 -m "Release v1.0.2"
+git push origin v1.0.2
 ```
 
 ## 🔄 GitHub Workflows
@@ -177,10 +181,10 @@ make release-prep
 
 ### Release (`release.yml`)
 
-- **Triggers**: GitHub release creation
-- **Builds**: Multi-platform binaries
+- **Triggers**: Git tags starting with `v` (e.g., `v1.0.0`)
+- **Builds**: Multi-platform binaries automatically
 - **Assets**: Automated upload with checksums
-- **Description**: Auto-generated release notes
+- **Release**: Automatically creates GitHub release
 
 ## 📋 Contributing
 
