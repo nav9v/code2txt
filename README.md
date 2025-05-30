@@ -1,16 +1,15 @@
 # code2txt 🚀
 
 A fast CLI tool that converts code repositories into AI-friendly text format. Perfect for feeding codebases to LLMs, ChatGPT, Claude, or other AI models.
+
+
+![socialscreenshots-30_5_2025, 10_33_46 am](https://github.com/user-attachments/assets/dd4322da-0395-460d-a613-8b1265a304ee)
+
+![socialscreenshots-30_5_2025, 10_33_55 am](https://github.com/user-attachments/assets/01a07785-92b8-4c53-a0df-ab488569f6cc)
+
 <!-- [![CI](https://github.com/nav9v/code2txt/actions/workflows/ci.yml/badge.svg)](https://github.com/nav9v/code2txt/actions/workflows/ci.yml) -->
 [![Release](https://github.com/nav9v/code2txt/actions/workflows/release.yml/badge.svg)](https://github.com/nav9v/code2txt/actions/workflows/release.yml)
 [![Go Report Card](https://goreportcard.com/badge/github.com/nav9v/code2txt)](https://goreportcard.com/report/github.com/nav9v/code2txt)
-
-
-![Screenshot 2025-05-29 232024](https://github.com/user-attachments/assets/3ce10e52-c558-4eb9-8059-733c045084a7)
-![Screenshot 2025-05-29 232041](https://github.com/user-attachments/assets/b1def82e-85df-4d14-9c2b-fa4c73f1c855)
-
-
-
 
 ## ✨ Features
 
